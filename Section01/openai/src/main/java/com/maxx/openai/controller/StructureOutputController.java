@@ -1,13 +1,19 @@
 package com.maxx.openai.controller;
 
 import com.maxx.openai.model.CountryCities;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.converter.ListOutputConverter;
+import org.springframework.ai.converter.MapOutputConverter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -26,6 +32,27 @@ public class StructureOutputController {
                 .prompt()
                 .user(message)
                 .call().entity(CountryCities.class);
+//        .call().entity(new BeanOutputConverter<>(CountryCities.class)); Work same as above
+
+        return ResponseEntity.ok(countryCities);
+    }
+
+    @GetMapping("/chat-list")
+    public ResponseEntity<List<String>> chatList(@RequestParam("message") String message){
+        @Nullable List<String> countryCities = chatClient
+                .prompt()
+                .user(message)
+                .call().entity(new ListOutputConverter());
+
+        return ResponseEntity.ok(countryCities);
+    }
+
+    @GetMapping("/chat-map")
+    public ResponseEntity<Map<String, Object>> chatMap(@RequestParam("message") String message){
+        @Nullable Map<String, Object> countryCities = chatClient
+                .prompt()
+                .user(message)
+                .call().entity(new MapOutputConverter());
 
         return ResponseEntity.ok(countryCities);
     }
